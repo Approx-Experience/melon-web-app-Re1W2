@@ -1,28 +1,49 @@
+import { useState, useEffect } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import { useLoaderData } from "react-router-dom";
+import DesktopBanner from "../components/DesktopBanner.jsx";
+import MobileBanner from "../components/MobileBanner.jsx";
+import ProductCard from "../components/ProductCard.jsx";
 import "./Home.css";
 
 const Home = () => {
 
+  const { products } = useLoaderData();
+
+  const [windowDimension, setWindowDimension] = useState(null);
+
+  useEffect(() => {
+    setWindowDimension(window.innerWidth);
+
+    const handleResize = () => {
+      setWindowDimension(window.innerWidth);
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const productCards = products.map((product) => {
+    return (
+      <ProductCard
+        key={product.productId}
+        productId={product.productId}
+        title={product.title}
+        description={product.description}
+        image={product.image}
+        price={product.price}
+      />
+    );
+  });
+
   return (
+    <>
+    {windowDimension < 1050 ?
+      <MobileBanner/>
+      :
+      <DesktopBanner/>
+      }
     <Container fluid className="home-container">
-    <Row className="banner-1">
-        <Col className="banner-1 title">
-          <h5 className="banner-1">SUMMER 2024</h5>
-          <h1 className="banner-1">NEW COLLECTION</h1>
-          <h4 className="banner-1">shorts, tees, tanks & more!</h4>
-          <Button className="banner-1">
-            <h3 className="banner-1">SHOP NOW</h3>
-          </Button>
-        </Col>
-        <Col className="banner-1-img-col">
-          <img
-            src="/banner-1.png"
-            alt=""
-            className="banner-1 image"
-            width="415px"
-          />
-        </Col>
-      </Row>
       <Row className="categories-title">
         <h3 className="categories-title">shop by category</h3>
         <h6 className="categories-title">whatcha lookin' for?</h6>
@@ -57,8 +78,10 @@ const Home = () => {
         <h6 className="best-sellers">get 'em while you can</h6>
       </Row>
       <Row className="home-products-row">
+        {productCards}
       </Row>
     </Container>
+    </>
   );
 };
 
